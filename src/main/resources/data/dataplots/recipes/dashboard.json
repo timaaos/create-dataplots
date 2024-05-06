@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " N ",
+    " P ",
+    " D "
+  ],
+  "key": {
+    "N": {
+      "tag": "create:nixie_tube"
+    },
+    "D": {
+      "item": "create:display_board"
+    },
+    "P": {
+      "item": "create:placard"
+    }
+  },
+  "result": {
+    "item": "dataplots:dashboard",
+    "count": 1
+  }
+}

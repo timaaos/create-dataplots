@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "dataplots:block/dashboard", "uvlock": true },
+    "facing=east":  { "model": "dataplots:block/dashboard", "y":  90, "uvlock": true },
+    "facing=south": { "model": "dataplots:block/dashboard", "y": 180, "uvlock": true },
+    "facing=west":  { "model": "dataplots:block/dashboard", "y": 270, "uvlock": true }
+  }
+}
