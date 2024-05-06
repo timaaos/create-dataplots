@@ -7,7 +7,7 @@
   ],
   "key": {
     "N": {
-      "tag": "create:nixie_tube"
+      "item": "create:nixie_tube"
     },
     "D": {
       "item": "create:display_board"
