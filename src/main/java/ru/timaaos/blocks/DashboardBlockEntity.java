@@ -1,39 +1,28 @@
 package ru.timaaos.blocks;
 
-import com.jozufozu.flywheel.util.transform.TransformStack;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
 import com.simibubi.create.foundation.utility.Lang;
 import com.simibubi.create.foundation.utility.VecHelper;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.item.AirBlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.BlockView;
-import org.apache.logging.log4j.core.util.Patterns;
 import ru.timaaos.CreateDataAndPlots;
 import net.minecraft.nbt.NbtCompound;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.Random;
 import java.util.regex.Pattern;
-
-import static net.minecraft.state.property.Properties.HORIZONTAL_FACING;
 
 public class DashboardBlockEntity extends SmartBlockEntity {
     private int[] barHeights = new int[]{5, 8, 2, 9};  // Example data for the bar plot
@@ -41,7 +30,8 @@ public class DashboardBlockEntity extends SmartBlockEntity {
     private String[] barNames = new String[]{"block.minecraft.grass_block", "block.minecraft.gold_ore", "item.minecraft.diamond", "item.minecraft.iron_ingot"};
     public boolean isController;
     public int xSize;
-    public ScrollValueBehaviour plotHeight;
+    public DashboardHeightBehaviour plotHeight;
+    public DashboardWidthBehaviour plotWidth;
 
     public DashboardBlockEntity(BlockPos pos, BlockState state) {
         super(CreateDataAndPlots.DASHBOARD_BLOCK_ENTITY, pos, state);
@@ -78,15 +68,33 @@ public class DashboardBlockEntity extends SmartBlockEntity {
 
     public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
         plotHeight =
-                new ScrollValueBehaviour(Lang.translateDirect("dashboard.plot_height"), this, new ValueBoxTransform.Sided() {
+                new DashboardHeightBehaviour(Lang.translateDirect("dashboard.plot_height"), this, new ValueBoxTransform.Sided() {
+                    @Override
+                    protected boolean isSideActive(BlockState state, Direction direction) {
+                        return direction == state.get(DashboardBlock.FACING).getOpposite();
+                    }
                     @Override
                     protected Vec3d getSouthLocation() {
-                        return direction == Direction.UP ? Vec3d.ZERO : VecHelper.voxelSpace(8, 6, 15.5);
+                        return direction == getCachedState().get(DashboardBlock.FACING).getOpposite() ? VecHelper.voxelSpace(8, 6, 15.5) : Vec3d.ZERO;
+                    }
+                    })
+                        .between(1, 8)
+                        .withFormatter(i -> i == 0 ? "*" : String.valueOf(i));
+        behaviours.add(plotHeight);
+        plotWidth =
+                new DashboardWidthBehaviour(Lang.translateDirect("dashboard.plot_width"), this, new ValueBoxTransform.Sided() {
+                    @Override
+                    protected boolean isSideActive(BlockState state, Direction direction) {
+                        return direction == state.get(DashboardBlock.FACING).getOpposite();
+                    }
+                    @Override
+                    protected Vec3d getSouthLocation() {
+                        return direction == getCachedState().get(DashboardBlock.FACING).getOpposite() ? VecHelper.voxelSpace(8, 14, 15.5) : Vec3d.ZERO;
                     }
                 })
                         .between(1, 8)
                         .withFormatter(i -> i == 0 ? "*" : String.valueOf(i));
-        behaviours.add(plotHeight);
+        behaviours.add(plotWidth);
     }
 
     public void setBarNames(String[] bn){

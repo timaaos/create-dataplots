@@ -30,30 +30,6 @@ public class DashboardBlock extends HorizontalFacingBlock implements BlockEntity
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        DashboardBlockEntity be = (DashboardBlockEntity) world.getBlockEntity(pos);
-        Random random = new Random();
-        int[] bh = new int[3];
-        for (int i = 0; i < 3; i++) {
-            bh[i] = random.nextInt(1,100);
-        }
-        be.setBarHeights(bh);
-        return super.onUse(state, world, pos, player, hand, hit);
-    }
-    @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext ctx) {
-        Direction dir = state.get(FACING);
-        switch(dir) {
-            case NORTH, SOUTH:
-                return VoxelShapes.cuboid(0.0f, 0.0f, 0.25f, 1.0f, 1.0f, 0.75f);
-            case EAST, WEST:
-                return VoxelShapes.cuboid(0.25f, 0.0f, 0.0f, 0.75f, 1.0f, 1.0f);
-            default:
-                return VoxelShapes.fullCube();
-        }
-    }
-
-    @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new DashboardBlockEntity(pos, state);
     }

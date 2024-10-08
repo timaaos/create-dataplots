@@ -51,6 +51,13 @@ public class DashboardBlockTarget extends DisplayTarget {
             int l = 0;
             for (String s : am) {
                 String n = s.split("'")[0];
+                if(n.startsWith("create.display_source")){
+                    BarplotValue bv = result.get(l);
+                    if(n.equals("create.display_source.value_list.thousand")){
+                        bv.amount *= 1000;
+                    }
+                    continue;
+                }
                 BarplotValue bv = result.get(l);
                 bv.id = n;
                 result.set(l, bv);

@@ -85,17 +85,19 @@ public class DashboardBlockEntityRenderer implements BlockEntityRenderer<Dashboa
     @Override
     public void render(DashboardBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getSolid());
+        light = 15728880;
         int[] heights = entity.getBarHeights();
         int[][] colors = entity.getBarColors();
         int plotHeight = entity.plotHeight.getValue();
-        float barWidth = 1.0f / heights.length;
+        float barWidth = (float) entity.plotWidth.getValue() / heights.length;
+        float xOffset = (float) entity.plotWidth.getValue() / 2;
         int maxHeight = 0;
         for (int v:heights) {
             if(v > maxHeight){
                 maxHeight = v;
             }
         }
-        float heightMultiplier = (10f*plotHeight-1.5f) / maxHeight;
+        float heightMultiplier = (10f*plotHeight-10f/Math.max(1,1/barWidth/1.5f)) / maxHeight;
         MinecraftClient client = MinecraftClient.getInstance();
         matrices.push();
         matrices.translate(0.5, 1F, 0.5F);
@@ -122,11 +124,11 @@ public class DashboardBlockEntityRenderer implements BlockEntityRenderer<Dashboa
         }
 
         for (int i = 0; i < heights.length; i++) {
-            float x0 = (i * barWidth) - 0.5f;
+            float x0 = (i * barWidth) - xOffset;
             float x1 = x0 + barWidth;
             float z0 = -0.25f;
             float z1 = 0.25f;
-            float y1 = 0.1f * heights[i]*heightMultiplier+0.15f;
+            float y1 = 0.1f * heights[i]*heightMultiplier+1f/Math.max(1,1/barWidth/1.5f);
 
             int r,g,b;
             if(i < colors.length){
@@ -154,13 +156,13 @@ public class DashboardBlockEntityRenderer implements BlockEntityRenderer<Dashboa
                 drawHeightText(matrices, String.valueOf(heights[i]), Math.max(1,1/barWidth/1.5f), (x0 + x1) / 2, y1 - 0.05f, -0.26f, client, vertexConsumers);
             }
 
-            drawQuad(matrices, vertexConsumer, v0, v3, v7, v4, new Color(r, g, b), (int) (light/1.2)); // Left face
-            drawQuad(matrices, vertexConsumer, v1, v0, v4, v5, new Color(r, g, b), light); // Front face
-            drawQuad(matrices, vertexConsumer, v2, v1, v5, v6, new Color(r, g, b), (int) (light/1.2)); // Right face
-            drawQuad(matrices, vertexConsumer, v3, v2, v6, v7, new Color(r, g, b), light); // Back face
-            drawQuad(matrices, vertexConsumer, v4, v7, v6, v5, new Color(r, g, b), (int) (light/1.2)); // Top face
+            drawQuad(matrices, vertexConsumer, v0, v3, v7, v4, new Color(r, g, b, 200), (int) (light/2)); // Left face
+            drawQuad(matrices, vertexConsumer, v1, v0, v4, v5, new Color(r, g, b, 200), light); // Front face
+            drawQuad(matrices, vertexConsumer, v2, v1, v5, v6, new Color(r, g, b, 200), (int) (light/2)); // Right face
+            drawQuad(matrices, vertexConsumer, v3, v2, v6, v7, new Color(r, g, b, 200), light); // Back face
+            drawQuad(matrices, vertexConsumer, v4, v7, v6, v5, new Color(r, g, b, 200), (int) (light/1.5)); // Top face
             ItemStack stack = entity.getItemForLabel(i);
-            renderItemLabel(matrices, stack, (x0 + x1) / 2, 0.025f, -0.26f, client, vertexConsumers, light);
+            renderItemLabel(matrices, stack, Math.max(1,1/barWidth/1.5f), (x0 + x1) / 2, 0f, -0.26f, client, vertexConsumers, light);
 
         }
 
@@ -175,12 +177,12 @@ public class DashboardBlockEntityRenderer implements BlockEntityRenderer<Dashboa
         vertex(entry, vertexConsumer, v3, color, light);
     }
 
-    public void renderItemLabel(MatrixStack matrices, ItemStack stack, float x, float y, float z, MinecraftClient client, VertexConsumerProvider vertexConsumers, int light) {
+    public void renderItemLabel(MatrixStack matrices, ItemStack stack, float sizemult, float x, float y, float z, MinecraftClient client, VertexConsumerProvider vertexConsumers, int light) {
         ItemRenderer itemRenderer = this.context.getItemRenderer();
         matrices.push();
-        matrices.translate(x, y, z);
+        matrices.translate(x, y+(0.5f/sizemult)/2, z);
         //matrices.multiply(client.getEntityRenderDispatcher().getRotation());
-        matrices.scale(0.25f, 0.25f, 0.25f);
+        matrices.scale(1f/sizemult, 1f/sizemult, 1f/sizemult);
         itemRenderer.renderItem(stack, ModelTransformationMode.GROUND, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, null , 0);
         matrices.pop();
     }
