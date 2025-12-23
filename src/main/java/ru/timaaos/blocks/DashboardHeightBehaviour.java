@@ -3,8 +3,7 @@ package ru.timaaos.blocks;
 import com.google.common.collect.ImmutableList;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.*;
-import com.simibubi.create.foundation.utility.Components;
-import com.simibubi.create.foundation.utility.VecHelper;
+import net.createmod.catnip.math.VecHelper;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,6 +11,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -35,7 +35,7 @@ public class DashboardHeightBehaviour extends BlockEntityBehaviour implements Va
     Consumer<Integer> clientCallback;
     Function<Integer, String> formatter;
     private Supplier<Boolean> isActive;
-    boolean needsWrench;
+    boolean needsWrench = true;
 
     public DashboardHeightBehaviour(Text label, SmartBlockEntity be, ValueBoxTransform slot) {
         super(be);
@@ -129,8 +129,12 @@ public class DashboardHeightBehaviour extends BlockEntityBehaviour implements Va
     @Override
     public boolean testHit(Vec3d hit) {
         BlockState state = blockEntity.getCachedState();
-        Vec3d localHit = hit.subtract(Vec3d.of(blockEntity.getPos()));
-        return slotPositioning.testHit(state, localHit);
+        BlockPos pos = blockEntity.getPos();
+        // Use blockEntity.getWorld() to get the level
+        Vec3d localHit = hit.subtract(Vec3d.of(pos));
+
+        // Add the missing arguments: level and pos
+        return slotPositioning.testHit(blockEntity.getWorld(), pos, state, localHit);
     }
 
     public void setLabel(Text label) {
@@ -151,12 +155,13 @@ public class DashboardHeightBehaviour extends BlockEntityBehaviour implements Va
 
     @Override
     public ValueSettingsBoard createBoard(PlayerEntity player, BlockHitResult hitResult) {
-        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Components.literal("Height")),
+        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Text.literal("Height")),
                 new ValueSettingsFormatter(ValueSettings::format));
     }
 
     @Override
     public void setValueSettings(PlayerEntity player, ValueSettings valueSetting, boolean ctrlDown) {
+        if (valueSetting.row() != 0) return; // Add this line!
         if (valueSetting.equals(getValueSettings()))
             return;
         setValue(valueSetting.value());
@@ -174,7 +179,7 @@ public class DashboardHeightBehaviour extends BlockEntityBehaviour implements Va
     }
 
     @Override
-    public void onShortInteract(PlayerEntity player, Hand hand, Direction side) {
+    public void onShortInteract(PlayerEntity player, Hand hand, Direction side, BlockHitResult hitResult) {
         if (player instanceof FakePlayer)
             blockEntity.getCachedState()
                     .onUse(getWorld(), player, hand,

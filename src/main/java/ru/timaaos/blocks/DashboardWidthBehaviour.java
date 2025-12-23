@@ -12,9 +12,8 @@ import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsBoard;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueSettingsFormatter;
-import com.simibubi.create.foundation.utility.Components;
-import com.simibubi.create.foundation.utility.VecHelper;
 
+import net.createmod.catnip.math.VecHelper;
 import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,6 +21,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -41,7 +41,7 @@ public class DashboardWidthBehaviour extends BlockEntityBehaviour implements Val
     Consumer<Integer> clientCallback;
     Function<Integer, String> formatter;
     private Supplier<Boolean> isActive;
-    boolean needsWrench;
+    boolean needsWrench = true;
 
     public DashboardWidthBehaviour(Text label, SmartBlockEntity be, ValueBoxTransform slot) {
         super(be);
@@ -135,8 +135,12 @@ public class DashboardWidthBehaviour extends BlockEntityBehaviour implements Val
     @Override
     public boolean testHit(Vec3d hit) {
         BlockState state = blockEntity.getCachedState();
-        Vec3d localHit = hit.subtract(Vec3d.of(blockEntity.getPos()));
-        return slotPositioning.testHit(state, localHit);
+        BlockPos pos = blockEntity.getPos();
+        // Use blockEntity.getWorld() to get the level
+        Vec3d localHit = hit.subtract(Vec3d.of(pos));
+
+        // Add the missing arguments: level and pos
+        return slotPositioning.testHit(blockEntity.getWorld(), pos, state, localHit);
     }
 
     public void setLabel(Text label) {
@@ -157,12 +161,13 @@ public class DashboardWidthBehaviour extends BlockEntityBehaviour implements Val
 
     @Override
     public ValueSettingsBoard createBoard(PlayerEntity player, BlockHitResult hitResult) {
-        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Components.literal("Width")),
+        return new ValueSettingsBoard(label, max, 1, ImmutableList.of(Text.literal("Width")),
                 new ValueSettingsFormatter(ValueSettings::format));
     }
 
     @Override
     public void setValueSettings(PlayerEntity player, ValueSettings valueSetting, boolean ctrlDown) {
+        if (valueSetting.row() != 1) return;
         if (valueSetting.equals(getValueSettings()))
             return;
         setValue(valueSetting.value());
@@ -171,7 +176,7 @@ public class DashboardWidthBehaviour extends BlockEntityBehaviour implements Val
 
     @Override
     public ValueSettings getValueSettings() {
-        return new ValueSettings(0, value);
+        return new ValueSettings(1, value);
     }
 
     @Override
@@ -180,7 +185,7 @@ public class DashboardWidthBehaviour extends BlockEntityBehaviour implements Val
     }
 
     @Override
-    public void onShortInteract(PlayerEntity player, Hand hand, Direction side) {
+    public void onShortInteract(PlayerEntity player, Hand hand, Direction side, BlockHitResult hitResult) {
         if (player instanceof FakePlayer)
             blockEntity.getCachedState()
                     .onUse(getWorld(), player, hand,

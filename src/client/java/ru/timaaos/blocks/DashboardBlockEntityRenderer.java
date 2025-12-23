@@ -88,9 +88,9 @@ public class DashboardBlockEntityRenderer implements BlockEntityRenderer<Dashboa
         light = 15728880;
         int[] heights = entity.getBarHeights();
         int[][] colors = entity.getBarColors();
-        int plotHeight = entity.plotHeight.getValue();
-        float barWidth = (float) entity.plotWidth.getValue() / heights.length;
-        float xOffset = (float) entity.plotWidth.getValue() / 2;
+        int plotHeight = entity.plotHeight;
+        float barWidth = (float) entity.plotWidth / heights.length;
+        float xOffset = (float) entity.plotWidth / 2;
         int maxHeight = 0;
         for (int v:heights) {
             if(v > maxHeight){

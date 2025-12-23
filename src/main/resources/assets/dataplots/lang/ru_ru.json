@@ -1,5 +1,5 @@
 {
-  "create.dashboard.plot_height": "Высота графика",
-  "create.dashboard.plot_width": "Ширина графика",
+  "dataplots.dashboard.plot_height": "Высота графика",
+  "dataplots.dashboard.plot_width": "Ширина графика",
   "block.dataplots.dashboard": "Дашборд"
 }

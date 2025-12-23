@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
-import com.simibubi.create.content.redstone.displayLink.target.DisplayTarget;
+import com.simibubi.create.api.behaviour.display.DisplayTarget;
 import com.simibubi.create.content.redstone.displayLink.target.DisplayTargetStats;
 
 import net.minecraft.block.Block;

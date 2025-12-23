@@ -4,6 +4,7 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
@@ -15,6 +16,7 @@ import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
+import ru.timaaos.network.DashboardPackets;
 
 import java.util.Random;
 
@@ -28,6 +30,20 @@ public class DashboardBlock extends HorizontalFacingBlock implements BlockEntity
         builder.add(Properties.HORIZONTAL_FACING);
 
     }
+    @Override
+    public ActionResult onUse(BlockState state, World world, BlockPos pos,
+                              PlayerEntity player, Hand hand, BlockHitResult hit) {
+
+        if (world.isClient)
+            return ActionResult.SUCCESS;
+
+        if (world.getBlockEntity(pos) instanceof DashboardBlockEntity) {
+            DashboardPackets.openScreen((ServerPlayerEntity) player, pos);
+        }
+
+        return ActionResult.CONSUME;
+    }
+
 
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {

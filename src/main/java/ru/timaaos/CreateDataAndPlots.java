@@ -1,8 +1,9 @@
 package ru.timaaos;
 
 import com.simibubi.create.AllCreativeModeTabs;
-import com.simibubi.create.content.kinetics.BlockStressDefaults;
-import com.simibubi.create.content.redstone.displayLink.AllDisplayBehaviours;
+import com.simibubi.create.AllDisplayTargets;
+import com.simibubi.create.Create;
+import com.simibubi.create.api.behaviour.display.DisplayTarget;
 import com.simibubi.create.foundation.data.AssetLookup;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.data.SharedProperties;
@@ -20,12 +21,16 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import com.tterrag.registrate.util.entry.RegistryEntry;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ru.timaaos.blocks.DashboardBlock;
 import ru.timaaos.blocks.DashboardBlockEntity;
 import ru.timaaos.blocks.DashboardBlockTarget;
+import ru.timaaos.network.DashboardPackets;
+
+import java.util.function.Supplier;
 
 
 public class CreateDataAndPlots implements ModInitializer {
@@ -38,11 +43,20 @@ public class CreateDataAndPlots implements ModInitializer {
 			FabricBlockEntityTypeBuilder.create(DashboardBlockEntity::new, DASHBOARD_BLOCK).build()
 	);
 	public static final Item DASHBOARD_BLOCK_ITEM = new BlockItem(DASHBOARD_BLOCK, new FabricItemSettings());
+	public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(ID);
+
+	public static final RegistryEntry<DashboardBlockTarget> DASHBOARD_TARGET = REGISTRATE.displayTarget("dashboard", DashboardBlockTarget::new)
+		.associate(DASHBOARD_BLOCK_ENTITY)
+		.register();
+
 	@Override
 	public void onInitialize() {
 		Registry.register(Registries.BLOCK, new Identifier(ID, "dashboard"), DASHBOARD_BLOCK);
 		Registry.register(Registries.ITEM, new Identifier(ID, "dashboard"), DASHBOARD_BLOCK_ITEM);
-		AllDisplayBehaviours.assignDataBehaviour(new DashboardBlockTarget(), "dashboard").accept(DASHBOARD_BLOCK);
+		REGISTRATE.register();
+		DashboardPackets.registerServer();
+
+		//AllDisplayTargets.register(new DashboardBlockTarget(), "dashboard").accept(DASHBOARD_BLOCK);
 		ItemGroupEvents.modifyEntriesEvent(AllCreativeModeTabs.BASE_CREATIVE_TAB.key()).register(content -> {
 			content.add(DASHBOARD_BLOCK_ITEM);
 		});

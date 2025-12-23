@@ -4,8 +4,7 @@ import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
 import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
 import com.simibubi.create.foundation.blockEntity.behaviour.ValueBoxTransform;
 import com.simibubi.create.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
-import com.simibubi.create.foundation.utility.Lang;
-import com.simibubi.create.foundation.utility.VecHelper;
+import net.createmod.catnip.math.VecHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -13,6 +12,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -29,14 +29,12 @@ public class DashboardBlockEntity extends SmartBlockEntity {
     private int[][] barColors = new int[][]{{60,60,255},{255,60,60},{60,255,60},{60,60,60}};
     private String[] barNames = new String[]{"block.minecraft.grass_block", "block.minecraft.gold_ore", "item.minecraft.diamond", "item.minecraft.iron_ingot"};
     public boolean isController;
-    public int xSize;
-    public DashboardHeightBehaviour plotHeight;
-    public DashboardWidthBehaviour plotWidth;
+    public int plotWidth = 1;
+    public int plotHeight = 1;
 
     public DashboardBlockEntity(BlockPos pos, BlockState state) {
         super(CreateDataAndPlots.DASHBOARD_BLOCK_ENTITY, pos, state);
         isController = false;
-        xSize = 1;
     }
     public int[] getBarHeights() {
         return barHeights;
@@ -66,36 +64,7 @@ public class DashboardBlockEntity extends SmartBlockEntity {
         barColors = bc;
     }
 
-    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
-        plotHeight =
-                new DashboardHeightBehaviour(Lang.translateDirect("dashboard.plot_height"), this, new ValueBoxTransform.Sided() {
-                    @Override
-                    protected boolean isSideActive(BlockState state, Direction direction) {
-                        return direction == state.get(DashboardBlock.FACING).getOpposite();
-                    }
-                    @Override
-                    protected Vec3d getSouthLocation() {
-                        return direction == getCachedState().get(DashboardBlock.FACING).getOpposite() ? VecHelper.voxelSpace(8, 6, 15.5) : Vec3d.ZERO;
-                    }
-                    })
-                        .between(1, 8)
-                        .withFormatter(i -> i == 0 ? "*" : String.valueOf(i));
-        behaviours.add(plotHeight);
-        plotWidth =
-                new DashboardWidthBehaviour(Lang.translateDirect("dashboard.plot_width"), this, new ValueBoxTransform.Sided() {
-                    @Override
-                    protected boolean isSideActive(BlockState state, Direction direction) {
-                        return direction == state.get(DashboardBlock.FACING).getOpposite();
-                    }
-                    @Override
-                    protected Vec3d getSouthLocation() {
-                        return direction == getCachedState().get(DashboardBlock.FACING).getOpposite() ? VecHelper.voxelSpace(8, 14, 15.5) : Vec3d.ZERO;
-                    }
-                })
-                        .between(1, 8)
-                        .withFormatter(i -> i == 0 ? "*" : String.valueOf(i));
-        behaviours.add(plotWidth);
-    }
+    public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
 
     public void setBarNames(String[] bn){
         barNames = bn;
@@ -121,6 +90,8 @@ public class DashboardBlockEntity extends SmartBlockEntity {
             r[i] = tag.getIntArray("BarColors"+Integer.toString(i));
         }
         barColors = r;
+        plotWidth = tag.getInt("PlotWidth");
+        plotHeight = tag.getInt("PlotHeight");
         this.barNames = tag.getString("BarNames").split(",");
     }
 
@@ -134,8 +105,9 @@ public class DashboardBlockEntity extends SmartBlockEntity {
                 tag.putIntArray("BarColors"+Integer.toString(i), barColors[i]);
             }
         }
+        tag.putInt("PlotWidth", plotWidth);
+        tag.putInt("PlotHeight", plotHeight);
         tag.putString("BarNames", String.join(",", this.barNames));
     }
-
 
 }

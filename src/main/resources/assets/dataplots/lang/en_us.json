@@ -1,5 +1,5 @@
 {
-  "create.dashboard.plot_height": "Plot Height",
-  "create.dashboard.plot_width": "Plot Width",
+  "dataplots.dashboard.plot_height": "Plot Height",
+  "dataplots.dashboard.plot_width": "Plot Width",
   "block.dataplots.dashboard": "Dashboard"
 }
