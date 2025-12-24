@@ -1,5 +1,11 @@
 {
   "dataplots.dashboard.plot_height": "Plot Height",
   "dataplots.dashboard.plot_width": "Plot Width",
-  "block.dataplots.dashboard": "Dashboard"
+  "dataplots.gui.dashboard.title": "Dashboard Configuration",
+  "dataplots.gui.dashboard.tab.display": "Display",
+  "dataplots.gui.dashboard.tab.plot": "Plot",
+  "dataplots.gui.dashboard.tab.style": "Style",
+  "dataplots.gui.dashboard.figure_size": "Figure Size",
+  "block.dataplots.dashboard": "Dashboard",
+  "block.dataplots.portable_player_interface": "Portable Player Interface"
 }

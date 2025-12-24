@@ -1,5 +1,11 @@
 {
   "dataplots.dashboard.plot_height": "Высота графика",
   "dataplots.dashboard.plot_width": "Ширина графика",
-  "block.dataplots.dashboard": "Дашборд"
+  "dataplots.gui.dashboard.title": "Настройки дашборда",
+  "dataplots.gui.dashboard.tab.display": "Вид",
+  "dataplots.gui.dashboard.tab.plot": "График",
+  "dataplots.gui.dashboard.tab.style": "Стиль",
+  "dataplots.gui.dashboard.figure_size": "Размер графика",
+  "block.dataplots.dashboard": "Дашборд",
+  "block.dataplots.portable_player_interface": "Портативный игровой интерфейс"
 }

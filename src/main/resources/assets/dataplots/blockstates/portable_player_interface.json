@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": { "model": "dataplots:block/portable_player_interface" },
+    "facing=down": { "model": "dataplots:block/portable_player_interface", "x": 180 },
+    "facing=north": { "model": "dataplots:block/portable_player_interface", "x": 90 },
+    "facing=south": { "model": "dataplots:block/portable_player_interface", "x": 270 },
+    "facing=east": { "model": "dataplots:block/portable_player_interface", "x": 90, "y": 90 },
+    "facing=west": { "model": "dataplots:block/portable_player_interface", "x": 90, "y": 270 }
+  }
+}
